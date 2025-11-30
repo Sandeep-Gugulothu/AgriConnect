@@ -10,6 +10,7 @@ import Courses from './pages/Courses';
 import Profile from './pages/Profile';
 import Learning from './pages/Learning';
 import Community from './pages/Community';
+import CommunityDetail from './pages/CommunityDetail';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -84,11 +85,20 @@ function App() {
         ) : <Navigate to="/login" />
       } />
       
-      <Route path="/community" element={
+      <Route path="/communities" element={
         user ? (
           <>
             <Navbar user={user} logout={logout} />
             <Community />
+          </>
+        ) : <Navigate to="/login" />
+      } />
+      
+      <Route path="/community/:id" element={
+        user ? (
+          <>
+            <Navbar user={user} logout={logout} />
+            <CommunityDetail />
           </>
         ) : <Navigate to="/login" />
       } />

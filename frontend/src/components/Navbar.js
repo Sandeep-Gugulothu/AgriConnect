@@ -7,7 +7,7 @@ const Navbar = ({ user, logout }) => {
 
   const navItems = [
     { path: '/dashboard', icon: 'home', label: 'Home', active: location.pathname === '/dashboard' },
-    { path: '/community', icon: 'users', label: 'Community', active: location.pathname === '/community' },
+    { path: '/communities', icon: 'users', label: 'Community', active: location.pathname.startsWith('/communit') },
     { path: '/learning', icon: 'book', label: 'Learning', active: location.pathname === '/learning' }
   ];
 

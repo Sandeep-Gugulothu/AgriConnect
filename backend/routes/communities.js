@@ -40,6 +40,22 @@ router.get('/all', async (req, res) => {
   }
 });
 
+// Get user's joined communities - MUST be before /:id route
+router.get('/my-communities', auth, async (req, res) => {
+  try {
+    const userCommunities = await UserCommunity.find({
+      userId: req.user.id,
+      isActive: true
+    }).populate('communityId').sort({ joinedAt: -1 });
+    
+    const communities = userCommunities.map(uc => uc.communityId).filter(c => c !== null);
+    res.json(communities);
+  } catch (error) {
+    console.error('My communities error:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Get all communities with user's membership status
 router.get('/', auth, async (req, res) => {
   try {
@@ -95,21 +111,6 @@ router.get('/', auth, async (req, res) => {
     res.json(communitiesWithStatus.slice(0, 50));
   } catch (error) {
     console.error('Communities route error:', error);
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Get user's joined communities
-router.get('/my-communities', auth, async (req, res) => {
-  try {
-    const userCommunities = await UserCommunity.find({
-      userId: req.user.id,
-      isActive: true
-    }).populate('communityId').sort({ joinedAt: -1 });
-    
-    const communities = userCommunities.map(uc => uc.communityId);
-    res.json(communities);
-  } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
@@ -224,6 +225,34 @@ router.post('/create', auth, async (req, res) => {
     res.status(201).json(community);
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+});
+
+// Get individual community by ID - MUST be after other specific routes
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+    if (!community) {
+      return res.status(404).json({ message: 'Community not found' });
+    }
+    
+    // Calculate actual member count
+    let actualMemberCount = 0;
+    try {
+      actualMemberCount = await UserCommunity.countDocuments({
+        communityId: community._id
+      });
+    } catch (err) {
+      actualMemberCount = community.memberCount || 0;
+    }
+    
+    res.json({
+      ...community.toObject(),
+      memberCount: actualMemberCount
+    });
+  } catch (error) {
+    console.error('Individual community fetch error:', error);
+    res.status(500).json({ message: error.message });
   }
 });
 

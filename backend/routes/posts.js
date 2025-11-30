@@ -1,9 +1,43 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const Post = require('../models/Post');
 const Community = require('../models/Community');
 const UserCommunity = require('../models/UserCommunity');
 const { protect: auth } = require('../middleware/auth');
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
 
 // Get posts from user's joined communities (feed)
 router.get('/feed', auth, async (req, res) => {
@@ -20,8 +54,7 @@ router.get('/feed', auth, async (req, res) => {
     
     // Get posts from these communities
     const posts = await Post.find({
-      community: { $in: communityIds },
-      isActive: true
+      community: { $in: communityIds }
     })
     .populate('author', 'name role')
     .populate('community', 'name icon type')
@@ -42,20 +75,8 @@ router.get('/community/:communityId', auth, async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
     const { communityId } = req.params;
     
-    // Check if user is member of this community
-    const membership = await UserCommunity.findOne({
-      userId: req.user.id,
-      communityId: communityId,
-      isActive: true
-    });
-    
-    if (!membership) {
-      return res.status(403).json({ message: 'Not a member of this community' });
-    }
-    
     const posts = await Post.find({
-      community: communityId,
-      isActive: true
+      community: communityId
     })
     .populate('author', 'name role')
     .populate('community', 'name icon type')
@@ -71,9 +92,9 @@ router.get('/community/:communityId', auth, async (req, res) => {
 });
 
 // Create a new post
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, upload.array('images', 4), async (req, res) => {
   try {
-    const { content, communityId, images = [] } = req.body;
+    const { content, communityId } = req.body;
     
     // Validate community membership
     const membership = await UserCommunity.findOne({
@@ -86,11 +107,14 @@ router.post('/', auth, async (req, res) => {
       return res.status(403).json({ message: 'Not a member of this community' });
     }
     
+    // Process uploaded images
+    const imageUrls = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
+    
     const post = new Post({
       content,
       author: req.user.id,
       community: communityId,
-      images
+      images: imageUrls
     });
     
     await post.save();
@@ -181,6 +205,26 @@ router.post('/:id/share', auth, async (req, res) => {
     }
     
     res.json({ shared: true, sharesCount: post.shares.length });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Delete a post
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+    
+    // Check if user is the author
+    if (post.author.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to delete this post' });
+    }
+    
+    await Post.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Post deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
