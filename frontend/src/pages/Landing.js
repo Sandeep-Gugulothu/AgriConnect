@@ -269,7 +269,8 @@ const Landing = () => {
             </div>
           </div>
           <div style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.875rem', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #374151' }}>
-            © {new Date().getFullYear()} Agri-Connect. All rights reserved.
+            <div style={{ marginBottom: '0.5rem' }}>© {new Date().getFullYear()} Agri-Connect. All rights reserved.</div>
+            <div style={{ fontSize: '0.75rem', color: '#4b5563' }}>Built with Amazon Q Developer</div>
           </div>
         </div>
       </footer>

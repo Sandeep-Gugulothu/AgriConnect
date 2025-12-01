@@ -35,7 +35,6 @@ router.get('/all', async (req, res) => {
     
     res.json(communitiesWithRealCounts.slice(0, 50));
   } catch (error) {
-    console.error('Simple communities route error:', error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -51,7 +50,6 @@ router.get('/my-communities', auth, async (req, res) => {
     const communities = userCommunities.map(uc => uc.communityId).filter(c => c !== null);
     res.json(communities);
   } catch (error) {
-    console.error('My communities error:', error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -82,7 +80,7 @@ router.get('/', auth, async (req, res) => {
       }).select('communityId');
       joinedCommunityIds = userMemberships.map(m => m.communityId.toString());
     } catch (membershipError) {
-      console.log('UserCommunity query failed, continuing without membership data');
+      // Continue without membership data
     }
     
     // Add real member counts and membership status
@@ -110,7 +108,6 @@ router.get('/', auth, async (req, res) => {
     
     res.json(communitiesWithStatus.slice(0, 50));
   } catch (error) {
-    console.error('Communities route error:', error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -251,7 +248,6 @@ router.get('/:id', auth, async (req, res) => {
       memberCount: actualMemberCount
     });
   } catch (error) {
-    console.error('Individual community fetch error:', error);
     res.status(500).json({ message: error.message });
   }
 });

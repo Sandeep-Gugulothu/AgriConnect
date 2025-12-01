@@ -144,17 +144,13 @@ const Dashboard = ({ user }) => {
 
   const fetchCrops = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/crops', {
+      const response = await axios.get('http://localhost:5000/api/fields/crops', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setCrops(response.data || []);
     } catch (error) {
       console.error('Error fetching crops:', error);
-      // Fallback to mock data
-      setCrops([
-        { name: 'Wheat', status: 'Growing', area: 2, days: 45 },
-        { name: 'Tomatoes', status: 'Planning', area: 1, days: 0 }
-      ]);
+      setCrops([]);
     }
   };
 
@@ -395,33 +391,43 @@ const Dashboard = ({ user }) => {
               {getIcon('crop')} My Crops
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {crops.length > 0 ? crops.map((crop, index) => (
-                <div key={index} style={{ 
-                  padding: '0.75rem', 
-                  backgroundColor: crop.status === 'Growing' ? '#f0fdf4' : '#fef3c7', 
-                  borderRadius: '0.5rem', 
-                  border: crop.status === 'Growing' ? '1px solid #bbf7d0' : '1px solid #fde68a'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ 
-                      fontSize: '0.875rem', 
-                      fontWeight: '500', 
-                      color: crop.status === 'Growing' ? '#166534' : '#92400e'
-                    }}>{crop.name}</span>
-                    <span style={{ 
-                      fontSize: '0.75rem', 
-                      color: crop.status === 'Growing' ? '#16a34a' : '#d97706'
-                    }}>{crop.status}</span>
-                  </div>
-                  <p style={{ 
-                    fontSize: '0.75rem', 
-                    color: crop.status === 'Growing' ? '#15803d' : '#b45309', 
-                    margin: '0.25rem 0 0' 
+              {crops.length > 0 ? crops.map((crop) => {
+                const statusColors = {
+                  growing: { bg: '#f0fdf4', border: '#bbf7d0', text: '#166534', light: '#16a34a' },
+                  planted: { bg: '#dbeafe', border: '#93c5fd', text: '#1e40af', light: '#3b82f6' },
+                  harvested: { bg: '#d1fae5', border: '#a7f3d0', text: '#065f46', light: '#059669' },
+                  planning: { bg: '#fef3c7', border: '#fde68a', text: '#92400e', light: '#d97706' }
+                };
+                const colors = statusColors[crop.status] || statusColors.planning;
+                
+                return (
+                  <div key={crop._id} style={{ 
+                    padding: '0.75rem', 
+                    backgroundColor: colors.bg, 
+                    borderRadius: '0.5rem', 
+                    border: `1px solid ${colors.border}`
                   }}>
-                    {crop.area} acres {crop.days > 0 ? `• Day ${crop.days}` : '• Next season'}
-                  </p>
-                </div>
-              )) : (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ 
+                        fontSize: '0.875rem', 
+                        fontWeight: '500', 
+                        color: colors.text
+                      }}>{crop.cropName}</span>
+                      <span style={{ 
+                        fontSize: '0.75rem', 
+                        color: colors.light
+                      }}>{crop.status.charAt(0).toUpperCase() + crop.status.slice(1)}</span>
+                    </div>
+                    <p style={{ 
+                      fontSize: '0.75rem', 
+                      color: colors.text, 
+                      margin: '0.25rem 0 0' 
+                    }}>
+                      {crop.landSize} acres • {crop.soilType} soil
+                    </p>
+                  </div>
+                );
+              }) : (
                 <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontSize: '0.875rem' }}>
                   No crops added yet
                 </div>

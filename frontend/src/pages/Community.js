@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const Community = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -136,7 +138,7 @@ const Community = () => {
   const fetchCommunities = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/communities/all');
+      const response = await axios.get(`${API_URL}/api/communities/all`);
       setCommunities(response.data || []);
     } catch (error) {
       console.error('Error fetching communities:', error);
@@ -172,27 +174,31 @@ const Community = () => {
 
   const handleJoinCommunity = async (communityId) => {
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+      alert('Please log in to join communities');
+      return;
+    }
     
-    // Immediately hide button and update member count
+    // Optimistic update
     setJoinedCommunityIds(prev => new Set([...prev, communityId]));
     setCommunities(prev => prev.map(c => 
       c._id === communityId ? { ...c, memberCount: c.memberCount + 1 } : c
     ));
     
     try {
-      await axios.post(`http://localhost:5000/api/communities/${communityId}/join`, {}, {
+      const response = await axios.post(`http://localhost:5000/api/communities/${communityId}/join`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      // Add to myCommunities for the tab
+      // Add to myCommunities
       const joinedCommunity = communities.find(c => c._id === communityId);
       if (joinedCommunity) {
-        setMyCommunities(prev => [...prev, { ...joinedCommunity, memberCount: joinedCommunity.memberCount + 1 }]);
+        setMyCommunities(prev => [...prev, joinedCommunity]);
       }
       
     } catch (error) {
-      // If failed, revert changes
+      console.error('Join community error:', error);
+      // Revert optimistic update
       setJoinedCommunityIds(prev => {
         const newSet = new Set(prev);
         newSet.delete(communityId);
@@ -201,6 +207,9 @@ const Community = () => {
       setCommunities(prev => prev.map(c => 
         c._id === communityId ? { ...c, memberCount: c.memberCount - 1 } : c
       ));
+      
+      const errorMsg = error.response?.data?.message || 'Failed to join community';
+      alert(errorMsg);
     }
   };
 
