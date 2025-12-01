@@ -1,26 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Grid, Card, CardContent, Typography, Button, Chip, Box } from '@mui/material';
 import { School, AccessTime } from '@mui/icons-material';
-import { courseAPI } from '../services/api';
 
 const Courses = () => {
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchCourses();
-  }, []);
-
-  const fetchCourses = async () => {
-    try {
-      const response = await courseAPI.getCourses();
-      setCourses(response.data);
-    } catch (error) {
-      console.error('Error fetching courses:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const sampleCourses = [
     {
@@ -52,7 +34,7 @@ const Courses = () => {
     }
   ];
 
-  const displayCourses = courses.length > 0 ? courses : sampleCourses;
+  const displayCourses = sampleCourses;
 
   return (
     <Box>

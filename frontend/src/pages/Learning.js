@@ -241,10 +241,11 @@ const Learning = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'white',
-              fontSize: '1.2rem'
+              color: 'white'
             }}>
-              ▶️
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
             </div>
             
             {/* Duration */}

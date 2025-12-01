@@ -5,24 +5,19 @@ const { protect: auth } = require('../middleware/auth');
 
 // WeatherAPI.com API key
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY || 'demo_key';
-console.log('🔑 Weather API Key:', WEATHER_API_KEY ? 'Present' : 'Missing');
 
 // Get weather data
 router.get('/', auth, async (req, res) => {
   try {
     const { lat, lon } = req.query;
-    console.log('🌍 Weather API received coordinates:', { lat, lon });
     const location = lat && lon ? `${lat},${lon}` : 'Delhi';
-    console.log('📍 Using location for weather:', location);
     
     // Try to fetch real weather data from WeatherAPI.com
     if (WEATHER_API_KEY !== 'demo_key') {
       const weatherUrl = `http://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${location}&aqi=no`;
-      console.log('🌤️ Fetching weather from:', weatherUrl.replace(WEATHER_API_KEY, 'API_KEY_HIDDEN'));
       const weatherResponse = await axios.get(weatherUrl);
       
       const data = weatherResponse.data;
-      console.log('🌡️ Weather API response location:', data.location);
       const weatherData = {
         temperature: Math.round(data.current.temp_c),
         humidity: data.current.humidity,
@@ -33,7 +28,6 @@ router.get('/', auth, async (req, res) => {
         windSpeed: Math.round(data.current.wind_kph / 3.6), // Convert to m/s
         pressure: Math.round(data.current.pressure_mb)
       };
-      console.log('🌍 Final weather data:', weatherData);
       
       res.json(weatherData);
     } else {
