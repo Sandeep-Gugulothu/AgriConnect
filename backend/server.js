@@ -6,7 +6,6 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
-const courseRoutes = require('./routes/courses');
 const communityRoutes = require('./routes/communities');
 const postRoutes = require('./routes/posts');
 const adminRoutes = require('./routes/admin');
@@ -14,9 +13,17 @@ const weatherRoutes = require('./routes/weather');
 const cropsRoutes = require('./routes/crops');
 const marketRoutes = require('./routes/market');
 const alertsRoutes = require('./routes/alerts');
+const fieldsRoutes = require('./routes/fields');
+const aiAgentRoutes = require('./routes/ai-agent');
+const executionRoutes = require('./routes/execution');
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://agri-connect-frontend.onrender.com', process.env.FRONTEND_URL]
+    : 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 
 // Serve uploaded files
@@ -31,7 +38,6 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/agri-conn
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/courses', courseRoutes);
 app.use('/api/communities', communityRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/admin', adminRoutes);
@@ -39,6 +45,18 @@ app.use('/api/weather', weatherRoutes);
 app.use('/api/crops', cropsRoutes);
 app.use('/api/market', marketRoutes);
 app.use('/api/alerts', alertsRoutes);
+app.use('/api/fields', fieldsRoutes);
+app.use('/api/ai-agent', aiAgentRoutes);
+app.use('/api/execution', executionRoutes);
+
+// Serve React app in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  });
+}
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', database: 'MongoDB' });

@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "description": "Agricultural Digital Ecosystem MVP",
   "scripts": {
-    "install:all": "cd backend && npm install && cd ../frontend && npm install",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm start",
-    "start:backend": "cd backend && npm start",
-    "build": "cd frontend && npm run build"
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd backend && npm start",
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm start\"",
+    "install-all": "cd backend && npm install && cd ../frontend && npm install"
   },
-  "keywords": ["agriculture", "farmers", "education", "mvp"],
-  "author": "AgriConnect Team",
-  "license": "MIT"
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
 }
