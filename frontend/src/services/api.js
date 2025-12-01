@@ -24,9 +24,6 @@ export const userAPI = {
   updateProfile: (data) => api.put('/users/profile', data),
 };
 
-export const courseAPI = {
-  getCourses: () => api.get('/courses'),
-  getCourse: (id) => api.get(`/courses/${id}`),
-};
+
 
 export default api;

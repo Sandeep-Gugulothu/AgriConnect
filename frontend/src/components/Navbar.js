@@ -7,6 +7,8 @@ const Navbar = ({ user, logout }) => {
 
   const navItems = [
     { path: '/dashboard', icon: 'home', label: 'Home', active: location.pathname === '/dashboard' },
+    { path: '/fields', icon: 'field', label: 'Fields', active: location.pathname === '/fields' },
+    { path: '/ai-agent', icon: 'robot', label: 'AI Agent', active: location.pathname === '/ai-agent' },
     { path: '/communities', icon: 'users', label: 'Community', active: location.pathname.startsWith('/communit') },
     { path: '/learning', icon: 'book', label: 'Learning', active: location.pathname === '/learning' }
   ];
@@ -26,6 +28,18 @@ const Navbar = ({ user, logout }) => {
       book: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
           <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
+        </svg>
+      ),
+      field: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
+          <path d="M8 11h8v2H8z"/>
+          <path d="M8 15h8v2H8z"/>
+        </svg>
+      ),
+      robot: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 8.5c0-.83-.67-1.5-1.5-1.5S15 9.67 15 10.5s.67 1.5 1.5 1.5S18 11.33 18 10.5zM7.5 9C6.67 9 6 9.67 6 10.5S6.67 12 7.5 12 9 11.33 9 10.5 8.33 9 7.5 9zm12.5 3.5c0 2.33-1.67 4.5-4 4.5h-8c-2.33 0-4-2.17-4-4.5V9c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v3.5z"/>
         </svg>
       )
     };

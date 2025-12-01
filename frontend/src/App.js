@@ -11,6 +11,10 @@ import Profile from './pages/Profile';
 import Learning from './pages/Learning';
 import Community from './pages/Community';
 import CommunityDetail from './pages/CommunityDetail';
+import Fields from './pages/Fields';
+import CropDetail from './pages/CropDetail';
+import AIAgent from './pages/AIAgent';
+import DailyTasks from './pages/DailyTasks';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -99,6 +103,42 @@ function App() {
           <>
             <Navbar user={user} logout={logout} />
             <CommunityDetail />
+          </>
+        ) : <Navigate to="/login" />
+      } />
+      
+      <Route path="/fields" element={
+        user ? (
+          <>
+            <Navbar user={user} logout={logout} />
+            <Fields />
+          </>
+        ) : <Navigate to="/login" />
+      } />
+      
+      <Route path="/fields/:id" element={
+        user ? (
+          <>
+            <Navbar user={user} logout={logout} />
+            <CropDetail />
+          </>
+        ) : <Navigate to="/login" />
+      } />
+      
+      <Route path="/ai-agent" element={
+        user ? (
+          <>
+            <Navbar user={user} logout={logout} />
+            <AIAgent />
+          </>
+        ) : <Navigate to="/login" />
+      } />
+      
+      <Route path="/daily-tasks/:cropId" element={
+        user ? (
+          <>
+            <Navbar user={user} logout={logout} />
+            <DailyTasks />
           </>
         ) : <Navigate to="/login" />
       } />
